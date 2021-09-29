@@ -34,42 +34,47 @@ using TableDependency.SqlClient.Base.Enums;
 
 namespace TableDependency.SqlClient.Base.Abstracts
 {
-    public interface ITableDependency : IDisposable
-    {
-        #region Events
+	public interface ITableDependency : IDisposable
+	{
+		#region Events
 
-        event ErrorEventHandler OnError;
-        event StatusEventHandler OnStatusChanged;
+		event ErrorEventHandler OnError;
+		event StatusEventHandler OnStatusChanged;
 
-        #endregion
+		#endregion
 
-        #region Methods
+		#region Methods
 
-        void Start(int timeOut = 120, int watchDogTimeOut = 180);
-        void Stop();
+		void Start(int timeOut = 120, int watchDogTimeOut = 180);
+		void Stop();
 
-        #endregion
+		#endregion
 
-        #region Properties
+		#region Properties
 
-        TraceLevel TraceLevel { get; set; }
-        TraceListener TraceListener { get; set; }
-        TableDependencyStatus Status { get; }
-        Encoding Encoding { get; set; }
-        CultureInfo CultureInfo { get; set; }
-        string DataBaseObjectsNamingConvention { get; }
-        string TableName { get; }
-        string SchemaName { get; }
+		TraceLevel TraceLevel { get; set; }
+		TraceListener TraceListener { get; set; }
+		TableDependencyStatus Status { get; }
+		Encoding Encoding { get; set; }
+		CultureInfo CultureInfo { get; set; }
+		string DataBaseObjectsNamingConvention { get; }
+		string TableName { get; }
+		string SchemaName { get; }
 
-        #endregion
-    }
+		#endregion
+	}
 
-    public interface ITableDependency<T> : ITableDependency where T : class, new()
-    {
-        #region Events
+	public interface ITableDependency<T> : ITableDependency where T : class, new()
+	{
+		#region Events
 
-        event ChangedEventHandler<T> OnChanged;
+		event ChangedEventHandler<T> OnChanged;
 
-        #endregion
-    }
+		#endregion
+	}
+
+	public interface IDynamicTableDependency : ITableDependency
+	{
+		event ChangedEventHandler OnChanged;
+	}
 }
