@@ -117,6 +117,7 @@ namespace TableDependency.SqlClient
 		/// Initializes a new instance of the <see cref="DynamicSqlTableDependency" /> class.
 		/// </summary>
 		/// <param name="connectionString">The connection string.</param>
+		/// <param name="interestedColumnNames">List of columns to watch</param>
 		/// <param name="tableName">Name of the table.</param>
 		/// <param name="schemaName">Name of the schema.</param>
 		/// <param name="filter">The filter condition translated in WHERE.</param>
@@ -126,7 +127,6 @@ namespace TableDependency.SqlClient
 		public DynamicSqlTableDependency(
 			string connectionString,
 			List<string> interestedColumnNames,
-			string idColumn = null,
 			string tableName = null,
 			string schemaName = null,
 			ITableDependencyFilter filter = null,

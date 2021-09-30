@@ -43,8 +43,8 @@ namespace TableDependency.SqlClient.Base.EventArgs
 
 		#region Properties
 
-		public IDictionary<string, object> Entity { get; protected set; }
-		public IDictionary<string, object> EntityOldValues { get; protected set; }
+		public IDictionary<string, object> ColumnValues { get; protected set; }
+		public IDictionary<string, object> ColumnOldValues { get; protected set; }
 		public ChangeType ChangeType { get; protected set; }
 
 		#endregion Properties
@@ -63,15 +63,15 @@ namespace TableDependency.SqlClient.Base.EventArgs
 
 			this.ChangeType = messagesBag.MessageType;
 
-			this.Entity = this.MaterializeEntity(messagesBag.Messages.Where(m => !m.IsOldValue).ToList());
+			this.ColumnValues = this.MaterializeEntity(messagesBag.Messages.Where(m => !m.IsOldValue).ToList());
 
 			if (includeOldValues && this.ChangeType == ChangeType.Update)
 			{
-				this.EntityOldValues = this.MaterializeEntity(messagesBag.Messages.Where(m => m.IsOldValue).ToList());
+				this.ColumnOldValues = this.MaterializeEntity(messagesBag.Messages.Where(m => m.IsOldValue).ToList());
 			}
 			else
 			{
-				this.EntityOldValues = new Dictionary<string, object>();
+				this.ColumnOldValues = new Dictionary<string, object>();
 			}
 		}
 
