@@ -58,7 +58,7 @@ namespace TableDependency.SqlClient
 		protected Guid ConversationHandle;
 		protected const string StartMessageTemplate = "{0}/StartMessage/{1}";
 		protected const string EndMessageTemplate = "{0}/EndMessage";
-		private readonly List<TableColumnInfo> userInterestedColumnsInfo;
+		private readonly List<TableColumnInfo> dynamicUserInterestedColumns;
 
 		#endregion Private variables
 
@@ -136,13 +136,13 @@ namespace TableDependency.SqlClient
 		{
 			this.IncludeOldValues = includeOldValues;
 			var allTableColumns = this.GetTableColumnsList();
-			userInterestedColumnsInfo = new List<TableColumnInfo>();
+			dynamicUserInterestedColumns = new List<TableColumnInfo>();
 
 			foreach (var column in allTableColumns)
 			{
 				if (interestedColumnNames.Contains(column.Name))
 				{
-					userInterestedColumnsInfo.Add(column);
+					dynamicUserInterestedColumns.Add(column);
 				}
 			}
 		}
@@ -425,9 +425,9 @@ namespace TableDependency.SqlClient
 		{
 			var processableMessages = new List<string>();
 
-			var columnsForModifiedRecordsTable = this.PrepareColumnListForTableVariable(userInterestedColumnsInfo, this.IncludeOldValues);
-			var columnsForExceptTable = this.PrepareColumnListForTableVariable(userInterestedColumnsInfo, false);
-			var columnsForDeletedTable = this.PrepareColumnListForTableVariable(userInterestedColumnsInfo, false);
+			var columnsForModifiedRecordsTable = this.PrepareColumnListForTableVariable(dynamicUserInterestedColumns, this.IncludeOldValues);
+			var columnsForExceptTable = this.PrepareColumnListForTableVariable(dynamicUserInterestedColumns, false);
+			var columnsForDeletedTable = this.PrepareColumnListForTableVariable(dynamicUserInterestedColumns, false);
 
 			using (var sqlConnection = new SqlConnection(_connectionString))
 			{
@@ -456,7 +456,7 @@ namespace TableDependency.SqlClient
 					this.WriteTraceMessage(TraceLevel.Verbose, $"Message {startMessageDelete} created.");
 					processableMessages.Add(startMessageDelete);
 
-					var interestedColumns = userInterestedColumnsInfo.ToArray();
+					var interestedColumns = dynamicUserInterestedColumns.ToArray();
 					foreach (var userInterestedColumn in interestedColumns)
 					{
 						var message = $"{_dataBaseObjectsNamingConvention}/{userInterestedColumn.Name}";
@@ -537,7 +537,7 @@ namespace TableDependency.SqlClient
 						_dataBaseObjectsNamingConvention,
 						$"[{_schemaName}].[{_tableName}]",
 						columnsForModifiedRecordsTable,
-						this.PrepareColumnListForSelectFromTableVariable(userInterestedColumnsInfo),
+						this.PrepareColumnListForSelectFromTableVariable(dynamicUserInterestedColumns),
 						this.PrepareInsertIntoTableVariableForUpdateChange(interestedColumns, null),
 						declareVariableStatement,
 						selectForSetVariablesStatement,
@@ -788,7 +788,7 @@ namespace TableDependency.SqlClient
 
 		protected override void CheckIfUserInterestedColumnsCanBeManaged()
 		{
-			foreach (var tableColumn in userInterestedColumnsInfo)
+			foreach (var tableColumn in dynamicUserInterestedColumns)
 			{
 				if (string.Equals(tableColumn.Type.ToUpperInvariant(), "XML", StringComparison.OrdinalIgnoreCase) || //TODO check why this does not work
 					string.Equals(tableColumn.Type.ToUpperInvariant(), "IMAGE", StringComparison.OrdinalIgnoreCase) ||
@@ -990,7 +990,7 @@ namespace TableDependency.SqlClient
 			this.WriteTraceMessage(TraceLevel.Verbose, "Get in WaitForNotifications.");
 
 			var messagesBag = this.CreateMessagesBag(this.Encoding, _processableMessages);
-			var messageNumber = this.GetTableColumnsList().Count() * (this.IncludeOldValues ? 2 : 1) + 2;
+			var messageNumber = this.dynamicUserInterestedColumns.Count() * (this.IncludeOldValues ? 2 : 1) + 2;
 
 			var waitForSqlScript =
 				$"BEGIN CONVERSATION TIMER ('{this.ConversationHandle.ToString().ToUpper()}') TIMEOUT = " + timeOutWatchDog + ";" +
